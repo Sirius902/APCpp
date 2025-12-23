@@ -18,7 +18,7 @@ extern "C"
 
 struct AP_State;
 
-AP_State* AP_New();
+AP_State* AP_New(const char*);
 void AP_Free(AP_State*);
 
 void AP_SetPingInterval(AP_State* state, int interval);

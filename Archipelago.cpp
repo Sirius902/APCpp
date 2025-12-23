@@ -153,6 +153,7 @@ struct AP_State
     std::vector<std::string> slotdata_strings;
 
     // Datapackage Stuff
+    std::filesystem::path save_path;
     std::filesystem::path datapkg_cache_path = "APCpp_datapkg.cache";
     Json::Value datapkg_cache;
     std::set<std::string> datapkg_outdated_games;
@@ -164,8 +165,9 @@ struct AP_State
     Json::Value sp_ap_root;
 };
 
-AP_State* AP_New() {
+AP_State* AP_New(const char* save_path) {
     AP_State* state = new AP_State();
+    state->save_path = std::filesystem::path{ std::u8string{ reinterpret_cast<const char8_t*>(save_path) } } / "mm_recomp_rando";
     return state;
 }
 
@@ -1053,7 +1055,7 @@ const char* AP_GetPlayerGameFromSlot(AP_State* state, int64_t slot) {
 
 void AP_Init_Generic(AP_State* state) {
     state->ap_player_name_hash = std::hash<std::string>{}(state->ap_player_name);
-    std::ifstream datapkg_cache_file(state->datapkg_cache_path);
+    std::ifstream datapkg_cache_file(state->save_path / state->datapkg_cache_path);
     state->reader.parse(datapkg_cache_file, state->datapkg_cache);
     datapkg_cache_file.close();
 }
@@ -1518,7 +1520,7 @@ void parseDataPkg(AP_State* state, Json::Value new_datapkg) {
         state->datapkg_outdated_games.erase(game);
         //printf("AP: Game Cache updated for %s\n", game.c_str());
     }
-    WriteFileJSON(state, state->datapkg_cache, state->datapkg_cache_path);
+    WriteFileJSON(state, state->datapkg_cache, state->save_path / state->datapkg_cache_path);
     parseDataPkg(state);
 }
 
